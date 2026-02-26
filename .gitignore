@@ -1,0 +1,16 @@
+.venv/*
+
+images/*
+
+__pycache__/*
+
+**.csv
+
+**.json
+
+requirements.txt
+
+card_scans/*
+
+
+*.DS_Store
