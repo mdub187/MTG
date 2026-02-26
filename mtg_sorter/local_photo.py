@@ -1,0 +1,1 @@
+'mtg_sorter/images/'
