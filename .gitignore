@@ -11,3 +11,6 @@ __pycache__/**
 requirements.txt
 
 card_scans/*
+
+
+*.DS_Store
