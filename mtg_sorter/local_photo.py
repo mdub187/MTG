@@ -1,1 +1,1 @@
-'mtg_sorter/images/'
+"mtg_sorter/images/"
