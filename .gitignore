@@ -1,8 +1,8 @@
 .venv/*
 
-images/*
+**/images/**
 
-__pycache__/*
+mtg_sorter/__pycache__/
 
 **.csv
 

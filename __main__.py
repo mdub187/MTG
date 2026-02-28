@@ -1,14 +1,17 @@
 import os
 import pandas as pd
-from mtg_sorter import ocr_engine, database
+from mtg_sorter import ocr_engine, database, master_sort
 import warnings
+from pathlib import Path
 # This ignores the specific RequestsDependencyWarning from the requests module
 warnings.filterwarnings("ignore", message=".*urllib3.*or.*chardet.*")
 
 batch_one_dir = os.path.abspath("./mtg_sorter/images/batch_one")
 batch_two_dir = os.path.abspath("./mtg_sorter/images/batch_two")
+batch_three_dir = os.path.abspath("./mtg_sorter/images/batch_three")
+batch_four_dir = os.path.abspath("./mtg_sorter/images/batch_four")
 
-scan_directory = [batch_one_dir, batch_two_dir]
+scan_directory = [batch_one_dir, batch_two_dir, batch_three_dir, batch_four_dir]
 def main():
     # 1. SETUP: Define paths and Load Database ONCE
     json_path = "oracle_cards.json"
@@ -56,8 +59,14 @@ def main():
 
     # 3. OUTPUT: Save all results to a single CSV
     if results:
+        # from .mtg_sorter import master_sort
+        master = Path("./card_scans/")
+        base = master / "scans.csv"
+        parent = base.parent
+        csv = parent.name
+        print(csv)
         df = pd.DataFrame(results)
-        df.to_csv("master_inventory.csv", index=False)
+        df.to_csv(master, index=False)
         print("\n" + "="*30)
         print(f"SUCCESS! {len(results)} cards processed.")
         print("Final report saved to: master_inventory.csv")

@@ -2,13 +2,14 @@ import os
 import json
 import pandas as pd
 from difflib import get_close_matches
-
+from pathlib import Path
+path = Path('./oracle_cards.json')
 # 1. Load the local database
-with open('../oracle_cards.json', 'r', encoding='utf-8') as f:
-    bulk_data = json.load(f)
+with open(path, 'r', encoding='utf-8') as f:
+    path = json.load(f)
 
 # Create a searchable dictionary: { "Card Name": {data} }
-mtg_db = {card['name'].lower(): card for card in bulk_data}
+mtg_db = {card['name'].lower(): card for card in path}
 valid_names = list(mtg_db.keys())
 
 def lookup_card_locally(ocr_name):
@@ -26,7 +27,7 @@ def lookup_card_locally(ocr_name):
             "Rarity": card.get('rarity', 'unknown')
         }
     return None
-image_folder=['/MTG_Sorter/mtg_sorter/images/batch_one/', '/MTG_Sorter/mtg_sorter/images/batch_two/' ]
+image_folder=['/MTG/mtg_sorter/images/batch_one/', '/MTG/mtg_sorter/images/batch_two/', "/MTG/mtg_sorter/images/batch_three/", "/MTG/mtg_sorter/images/batch_four/"]
 def process_inventory(image_folder):
     results = []
     for filename in os.listdir(image_folder):
@@ -38,6 +39,12 @@ def process_inventory(image_folder):
                 print(f"Matched: {ocr_name} -> {data['Name']}")
 
     # Save to CSV
-    pd.DataFrame(results).to_csv("master_inventory.csv", index=False)
+    process_inventory = os.path.join('./card_scans/')
+    df = pd.DataFrame(results).to_csv(process_inventory, index=False)
+    df_combined = pd.concat([df, df], ignore_index=True)
 
-process_inventory('./card_scans/')
+    with open (df_combined, "w") as a:
+    	for path, subdirs, files in os.walk(str(process_inventory)):
+       	 for filename in files:
+         	f = os.path.join(path, filename)
+         	a.write(str(f) + os.linesep)

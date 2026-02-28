@@ -4,7 +4,7 @@ import pandas as pd
 from .ocr_engine import extract_name
 from .database import CardDatabase
 
-def process_french_batch(scan_dir=["./images/batch_one/", "./images/batch_two/"], json_path="./oracle_cards.json"):
+def process_french_batch(scan_dir=["./images/batch_one/", "./images/batch_two/", "./images/batch_three/", "./images/batch_four/"], json_path="./oracle_cards.json"):
     """
     Independent runner for French language card sorting.
     """
@@ -42,10 +42,11 @@ def process_french_batch(scan_dir=["./images/batch_one/", "./images/batch_two/"]
             print(f"Skipping non-French or unknown card: {filename}")
 
     # Output to a specific French inventory file
-    if results:
-        df = pd.DataFrame(results)
-        df.to_csv("./french_inventory.csv", index=False)
-        print(f"Success! {len(results)} French cards documented in french_inventory.csv")
+    # if results:
+    #     df = pd.DataFrame(results)
+    #     df.to_csv("./french_inventory.csv", index=False)
+    #     print(f"Success! {len(results)} French cards documented in french_inventory.csv")
 
 if __name__ == "__main__":
-    process_french_batch()
+	print("french_processor.py")
+    # process_french_batch()
