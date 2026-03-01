@@ -2,7 +2,7 @@
 
 images/*
 
-__pycache__/*
+**/__pycache__/**
 
 **.csv
 
@@ -12,5 +12,7 @@ requirements.txt
 
 card_scans/*
 
+mtg_sorter/images/*
 
 *.DS_Store
+**temp_roi.jpg
