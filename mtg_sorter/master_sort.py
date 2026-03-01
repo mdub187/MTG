@@ -5,7 +5,7 @@ import pandas as pd
 from difflib import get_close_matches
 from pathlib import Path
 from . import ocr_engine
-
+from mtg_sorter.ocr_engine import extract_name
 # Load the local database
 db_path = Path("/Users/mdub/Documents/MTG_Sorter/oracle_cards.json")
 with open(db_path, "r", encoding="utf-8") as f:
@@ -22,18 +22,18 @@ def lookup_card_locally(ocr_name):
         return None
 
     # Normalize the OCR output
-    normalized_name = normalize_ocr_text(ocr_name)
+    normalized_name = extract_name(ocr_name)
     print(f"Normalized name: '{normalized_name}'")
 
     # Try direct match
     if normalized_name.lower() in mtg_db:
         card = mtg_db[normalized_name.lower()]
         return {
-            "Name": card["name"],
-            "Colors": "".join(card.get("color_identity", [])),
-            "Set": card.get("set_name", "Unknown"),
-            "USD_Price": card.get("prices", {}).get("usd", "0.00"),
-            "Rarity": card.get("rarity", "unknown"),
+            "Card_Name": card.get('name'),
+            "Set": card.get('set_name', 'Unknown'),
+            "Colors": "".join(card.get('color', [])),
+            "Price_USD": card.get('price', {}).get('usd', '0.00'),
+            "Rarity": card.get('rarity', 'unknown')
         }
 
     # Try matching against original and normalized versions

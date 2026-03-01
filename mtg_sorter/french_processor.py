@@ -4,11 +4,7 @@ import pandas as pd
 from .ocr_engine import extract_name
 from .database import CardDatabase
 
-
-def process_french_batch(
-    scan_dir=["./images/batch_one/", "./images/batch_two/"],
-    json_path="./oracle_cards.json",
-):
+def process_french_batch(scan_dir=["./images/batch_one/", "./images/batch_two/", "./images/batch_three/"], json_path="./oracle_cards.json"):
     """
     Independent runner for French language card sorting.
     """
@@ -33,19 +29,17 @@ def process_french_batch(
         # Database lookup (handles 'printed_name' for French)
         match = db.find_best_match(raw_name, raw_collect)
 
-        if match["è", "é", "ê", "ë", "à", "á", "â"] and match.get("lang") == "fr":
-            print(
-                f"French Match: {filename} -> {match['printed_name']} ({match['set']})"
-            )
-            results.append(
-                {
-                    "File": filename,
-                    "French_Name": match["printed_name"],
-                    "English_Name": match["name"],
-                    "Set": match["set"],
-                    "Price": match["price"],
-                }
-            )
+        if match ['è', 'é', 'ê', 'ë', 'à', 'á', 'â'] and match.get('lang') == 'fr':
+            print(f"French Match: {filename} -> {match['printed_name']} ({match['set']}) ({match['color']})")
+            results.append({
+                "File": filename,
+                "French_Name": match['printed_name'],
+                "English_Name": match['name'],
+                "Set": match['set'],
+                "Colors": match['color'],
+                "Price_USD": match['price'],
+                "Rarity": match['rarity']
+            })
         else:
             print(f"Skipping non-French or unknown card: {filename}")
 

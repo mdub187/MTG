@@ -1,184 +1,105 @@
-
+import os
 import cv2
 import pytesseract
-import numpy as np
-import sys
-import re
+import pandas as pd
 
-Path = "./images/"
 
-def enhance_card_image(img):
-    """Enhances the card image for better OCR accuracy"""
-    # Convert to grayscale
-    gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
-
-    # Adaptive thresholding
-    thresh = cv2.adaptiveThreshold(
-        gray, 255, cv2.ADAPTIVE_THRESH_GAUSSIAN_C,
-        cv2.THRESH_BINARY, 11, 2
-    )
-
-    # Remove small noise
-    kernel = cv2.getStructuringElement(cv2.MORPH_RECT, (2, 2))
-    cleaned = cv2.morphologyEx(thresh, cv2.MORPH_OPEN, kernel)
-
-    return cleaned
-
-def extract_name(Path, lang="eng"):
-    img = cv2.imread(Path)
+def extract_name(image_path):
+    """
+    OCR function to extract card name and collector info.
+    Supports English + French in one pass.
+    """
+    img = cv2.imread(image_path)
     if img is None:
-        print(f"Error: Could not read image at {Path}", file=sys.stderr)
         return None, None
 
-    h, w = img.shape[:2]
-    print(f"Image dimensions: {w}x{h}")
+    h, w, _ = img.shape
 
-    # Define ROIs with tighter bounds
-    name_roi = img[int(h * 0.1):int(h * 0.2), int(w * 0.1):int(w * 0.9)]
-    collect_roi = img[int(h * 0.8):int(h * 0.85), int(w * 0.1):int(w * 0.5)]
+    # Name ROI (top-left)
+    name_roi = img[int(h * 0.04):int(h * 0.11), int(w * 0.05):int(w * 0.65)]
 
-    # Process ROIs
-    name_clean = enhance_card_image(name_roi)
-    collect_clean = enhance_card_image(collect_roi)
+    # Collector ROI (bottom-left)
+    collect_roi = img[int(h * 0.91):int(h * 0.97), int(w * 0.05):int(w * 0.35)]
 
-    # Configure Tesseract to recognize only card-relevant characters
-    custom_config = r'--psm 6 -c tessedit_char_whitelist="ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-:.,;()[]{}\'""?!&|_-"'
+    def clean_roi(roi):
+        gray = cv2.cvtColor(roi, cv2.COLOR_BGR2GRAY)
+        _, thresh = cv2.threshold(gray, 150, 255, cv2.THRESH_BINARY_INV)
+        return thresh
 
-    # Extract text
-    name_text = pytesseract.image_to_string(name_clean, lang=lang, config=custom_config).strip()
-    collect_text = pytesseract.image_to_string(collect_clean, lang=lang, config=custom_config).strip()
+    name_text = pytesseract.image_to_string(
+        clean_roi(name_roi),
+        lang="eng+fra",
+        config="--psm 7"
+    ).strip()
 
-    # Clean extracted text
-    name_text = clean_ocr_output(name_text)
-    collect_text = clean_ocr_output(collect_text)
-
-    print(f"Extracted name: '{name_text}'")
-    print(f"Extracted collect: '{collect_text}'")
+    collect_text = pytesseract.image_to_string(
+        clean_roi(collect_roi),
+        lang="eng+fra",
+        config="--psm 7"
+    ).strip()
 
     return name_text, collect_text
 
-def clean_ocr_output(text):
-    """Clean up OCR output by removing special characters and normalizing"""
-    if not text:
-        return ""
 
-    # Remove multiple spaces and newlines
-    text = re.sub(r'\s+', ' ', text)
+def process_batch(
+    scan_dirs=None,
+    json_path="./oracle_cards.json"
+):
+    """
+    Unified runner for mixed-language card sorting.
+    """
+    if scan_dirs is None:
+        scan_dirs = [
+            "./images/batch_one/",
+            "./images/batch_two/",
+            "./images/batch_three/"
+        ]
 
-    # Remove special characters except for common card name characters
-    text = re.sub(r'[^a-zA-Z0-9-:.,;()[]{}\'""?!&|_ ]', '', text)
+    if not os.path.exists(json_path):
+        print(f"Error: {json_path} is required.")
+        return
 
-    # Capitalize first letter of each word (for card names)
-    text = re.sub(r'(^|\s)(\w)', lambda m: m.group(1) + m.group(2).upper(), text)
+    db = CardDatabase(json_path)
+    results = []
 
-    # Remove leading/trailing spaces
-    return text.strip()
+    print(f"Scanning cards in {scan_dirs}...")
+
+    for scan_dir in scan_dirs:
+        for filename in os.listdir(scan_dir):
+
+            if filename.startswith('.') or not filename.lower().endswith(('.jpg', '.png')):
+                continue
+
+            path = os.path.join(scan_dir, filename)
+
+            raw_name, raw_collect = extract_name(path)
+            if not raw_name:
+                print(f"Could not identify: {filename}")
+                continue
+
+            match = db.find_best_match(raw_name, raw_collect)
+
+            if match:
+                print(f"Match: {filename} -> {match['name']} ({match['set']})")
+
+                results.append({
+                    "File": filename,
+                    "Printed_Name": match.get('printed_name'),
+                    "English_Name": match.get('name'),
+                    "Set": match.get('set'),
+                    "Colors": match.get('color'),
+                    "Price_USD": match.get('price'),
+                    "Rarity": match.get('rarity'),
+                    "Language": match.get('lang')
+                })
+            else:
+                print(f"No match found: {filename}")
+
+    if results:
+        df = pd.DataFrame(results)
+        df.to_csv("./inventory.csv", index=False)
+        print(f"Success! {len(results)} cards documented.")
 
 
-
-
-# Common OCR substitutions map
-OCR_SUBSTITUTIONS = {
-    '0': 'O',
-    '1': 'I',
-    '3': 'E',
-    '5': 'S',
-    '7': 'T',
-    '6': 'G',
-    '8': 'B',
-    '9': 'g',
-    ' ': '',
-    '|': 'I',
-    '/': 'l',
-    '!': 'I',
-    'i': 'l',
-    'j': 'i',
-    '1': 'l',
-    '3': 'e',
-    '5': 's',
-    '7': 't',
-    '9': 'g',
-    '@': 'a',
-    '$': 's',
-    '&': 'e',
-    '(': 'c',
-    ')': 'd',
-    '[': 'c',
-    ']': 'd',
-    '{': 'c',
-    '}': 'd',
-    ';': 'l',
-    ':': 'l',
-    '*': 'x',
-    '^': 'a',
-    '~': 'n',
-    '`': 'n',
-    "'": '',
-    '"': '',
-    '?': 'q',
-    '!': 'l',
-    '%': 'x',
-    '<': 'c',
-    '>': 'd',
-    ',': 'c',
-    '.': 'e',
-    '…': '...',
-    '–': '-',
-    '—': '-',
-    '“': '',
-    '”': '',
-    '‘': '',
-    '’': '',
-    '‘': '',
-    '’': '',
-    '‘': '',
-    '’': '',
-    '‘': '',
-    '’': '',
-    '‘': '',
-    '’': '',
-    '‘': '',
-    '’': '',
-    '‘': '',
-    '’': '',
-    '‘': '',
-    '’': '',
-    '‘': '',
-    '’': '',
-    '‘': '',
-    '’': '',
-    '‘': '',
-    '’': '',
-    '‘': '',
-    '’': '',
-}
-
-def normalize_ocr_text(text):
-    """Normalize and correct common OCR errors"""
-    if not text:
-        return ""
-
-    # Convert to lowercase for case-insensitive matching
-    text = text.lower()
-
-    # Replace common OCR errors with more likely characters
-    for error, correct in OCR_SUBSTITUTIONS.items():
-        text = text.replace(error, correct)
-
-    # Remove multiple spaces and clean up
-    text = re.sub(r'\s+', ' ', text).strip()
-
-    # Common prefix/suffix patterns that often get misread
-    text = re.sub(r'^the ', '', text)  # Many cards don't start with "the"
-    text = re.sub(r' \& ', ' and ', text)
-    text = re.sub(r' \+ ', ' plus ', text)
-    text = re.sub(r' \- ', '-', text)
-    text = re.sub(r' \( | \| ', '-', text)  # Common OCR for dashes
-
-    # Remove extra apostrophes and quotes that often appear
-    text = re.sub(r"['\"]", "", text)
-
-    # Capitalize the first letter of each word (for card names)
-    text = ' '.join(word.capitalize() for word in text.split())
-
-    return text
+if __name__ == "__main__":
+    process_batch()
