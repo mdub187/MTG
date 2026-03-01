@@ -1,6 +1,6 @@
 .venv/*
 
-images/*
+images/
 
 **/__pycache__/**
 

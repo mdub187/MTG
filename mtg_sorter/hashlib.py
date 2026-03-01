@@ -1,8 +1,8 @@
 import imagehash
 from PIL import Image
 import json
-
-image_path = "/Users/mdub/Documents/MTG_Sorter/mtg_sorter/images/*"
+from .master_sort import image_folder
+image_path = image_folder
 
 
 def generate_fingerprint(image_path):

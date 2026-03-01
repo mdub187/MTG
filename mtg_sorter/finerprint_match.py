@@ -3,8 +3,10 @@ from PIL import Image
 import scrython
 import requests
 from io import BytesIO
+from .master_sort import image_folder
 
 
+image_path = image_folder
 def get_image_hash(image_path):
     """Generates a 64-bit perceptual hash of the image."""
     return imagehash.phash(Image.open(image_path))
@@ -22,7 +24,7 @@ def find_exact_printing(scan_path, card_name):
     # Note: Using the API here for specific version images
     try:
         printings = scrython.cards.Search(q=f'!"{card_name}" unique:prints')
-        
+
         # Convert to list if it's a Search object
         if hasattr(printings, 'data') and callable(getattr(printings, 'data')):
             printing_list = printings.data()

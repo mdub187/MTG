@@ -2,13 +2,14 @@ import os
 import pandas as pd
 from mtg_sorter import ocr_engine, database
 import warnings
+
 # This ignores the specific RequestsDependencyWarning from the requests module
 warnings.filterwarnings("ignore", message=".*urllib3.*or.*chardet.*")
+from mtg_sorter.master_sort import process_inventory
 
-batch_one_dir = os.path.abspath("./mtg_sorter/images/batch_one")
-batch_two_dir = os.path.abspath("./mtg_sorter/images/batch_two")
 
-scan_directory = [batch_one_dir, batch_two_dir]
+Path = os.path.abspath("./mtg_sorter/images/*")
+scan_directory = process_inventory
 def main():
     # 1. SETUP: Define paths and Load Database ONCE
     json_path = "oracle_cards.json"
@@ -23,9 +24,10 @@ def main():
 
     # 2. PROCESSING: Loop through every file in the folder
     print(f"Starting scan in {scan_directory}...")
+    image_root = "./mtg_sorter/images/"
 
-    for directory in scan_directory:
-        for filename in os.listdir(directory):
+    for directory in image_root:
+        for filename in Path:
 
             if filename.startswith('.'):
                 continue
