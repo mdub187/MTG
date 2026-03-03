@@ -17,15 +17,15 @@ def extract_name(image_path):
 
     # Name ROI (top-left)
     name_roi = img[int(h * 0.04):int(h * 0.11), int(w * 0.05):int(w * 0.65)]
-
+    # print(name_roi)
     # Collector ROI (bottom-left)
     collect_roi = img[int(h * 0.91):int(h * 0.97), int(w * 0.05):int(w * 0.35)]
-
+    # print(collect_roi)
     def clean_roi(roi):
         gray = cv2.cvtColor(roi, cv2.COLOR_BGR2GRAY)
         _, thresh = cv2.threshold(gray, 150, 255, cv2.THRESH_BINARY_INV)
         return thresh
-
+        # print(clean_roi)
     name_text = pytesseract.image_to_string(
         clean_roi(name_roi),
         lang="eng+fra",
@@ -37,14 +37,15 @@ def extract_name(image_path):
         lang="eng+fra",
         config="--psm 7"
     ).strip()
-
+    # print(type(collect_text))
     return name_text, collect_text
 
 
 def process_batch(
     scan_dirs=None,
-    json_path="./oracle_cards.json"
+    json_path="../oracle_cards.json"
 ):
+
     """
     Unified runner for mixed-language card sorting.
     """
@@ -52,13 +53,15 @@ def process_batch(
         scan_dirs = [
             "./images/batch_one/",
             "./images/batch_two/",
-            "./images/batch_three/"
+            "./images/batch_three/",
+            "./images/batch_four/"
         ]
 
     if not os.path.exists(json_path):
         print(f"Error: {json_path} is required.")
         return
 
+    from database import CardDatabase
     db = CardDatabase(json_path)
     results = []
 
@@ -101,5 +104,5 @@ def process_batch(
         print(f"Success! {len(results)} cards documented.")
 
 
-if __name__ == "__main__":
-    process_batch()
+# if __name__ == "__main__":
+#     process_batch()

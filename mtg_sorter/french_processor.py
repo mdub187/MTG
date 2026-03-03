@@ -4,7 +4,7 @@ import pandas as pd
 from .ocr_engine import extract_name
 from .database import CardDatabase
 
-def process_french_batch(scan_dir=["./images/batch_one/", "./images/batch_two/", "./images/batch_three/"], json_path="./oracle_cards.json"):
+def process_french_batch(scan_dir=["./images/batch_one/", "./images/batch_two/", "./images/batch_three/", "./images/batch_four/"], json_path="./oracle_cards.json"):
     """
     Independent runner for French language card sorting.
     """

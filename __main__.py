@@ -3,7 +3,7 @@ import pandas as pd
 from pathlib import Path
 import warnings
 
-from mtg_sorter import ocr_engine, database
+from mtg_sorter import ocr_engine, database, french_processor
 
 # Ignore specific warning
 warnings.filterwarnings("ignore", message=".*urllib3.*or.*chardet.*")
@@ -11,8 +11,9 @@ warnings.filterwarnings("ignore", message=".*urllib3.*or.*chardet.*")
 batch_one_dir = os.path.abspath("./mtg_sorter/images/batch_one")
 batch_two_dir = os.path.abspath("./mtg_sorter/images/batch_two")
 batch_three_dir = os.path.abspath("./mtg_sorter/images/batch_three")
+batch_four_dir = os.path.abspath("./mtg_sorter/images/batch_four")
 
-scan_dir = [batch_one_dir, batch_two_dir, batch_three_dir]
+scan_dir = [batch_one_dir, batch_two_dir, batch_three_dir, batch_four_dir]
 
 
 def main():
@@ -48,12 +49,13 @@ def main():
 
             try:
                 raw_name, raw_collect = ocr_engine.extract_name(str(filepath))
+                french_lang_proc = french_processor.process_french_batch(str(filepath))
                 final_card = db.find_best_match(raw_name, raw_collect)
-
+                print(type(final_card), final_card)
                 if final_card:
                     print(
                         f"Matched: {filepath.name} -> "
-                        f"{final_card['name']} ({final_card['set']})"
+                        f"{final_card['name']} ({final_card['set']}) {(french_lang_proc['name'])} {(french_lang_proc['set'])}"
                     )
 
                     results.append({

@@ -35,7 +35,6 @@ class CardDatabase:
         if key not in self.db:
             self.db[key] = []
         self.db[key].append(card_obj)
-
     def find_best_match(self, ocr_name, collector_ocr="", min_confidence=0.75):
         if not ocr_name:
             return None, 0
@@ -78,3 +77,5 @@ class CardDatabase:
             "rarity": card_obj.get("rarity"),
         }
         self.__init__(CardDatabase)
+
+print(CardDatabase._add_to_index)
