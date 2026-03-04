@@ -19,3 +19,9 @@ mtg_sorter/images/*
 
 *.DS_Store
 **temp_roi.jpg
+
+.env
+
+agent.py
+
+.vibe
