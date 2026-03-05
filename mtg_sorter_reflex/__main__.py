@@ -3,7 +3,7 @@ import pandas as pd
 from pathlib import Path
 import warnings
 
-from mtg_sorter_reflex.MTG_Sorter import ocr_engine, database, french_processor
+from .mtg_sorter_reflex import ocr_engine, database, french_processor
 
 # Ignore specific warning
 warnings.filterwarnings("ignore", message=".*urllib3.*or.*chardet.*")
@@ -12,8 +12,9 @@ batch_one_dir = os.path.abspath("./mtg_sorter/images/batch_one")
 batch_two_dir = os.path.abspath("./mtg_sorter/images/batch_two")
 batch_three_dir = os.path.abspath("./mtg_sorter/images/batch_three")
 batch_four_dir = os.path.abspath("./mtg_sorter/images/batch_four")
+batch_five_dir = os.path.abspath("./mtg_sorter/images/batch_five")
 
-scan_dir = [batch_one_dir, batch_two_dir, batch_three_dir, batch_four_dir]
+scan_dir = [batch_one_dir, batch_two_dir, batch_three_dir, batch_four_dir, batch_five_dir]
 
 
 def main():
@@ -48,23 +49,26 @@ def main():
             print(f"Processing: {filepath.name}")
 
             try:
-                raw_name, raw_collect = ocr_engine.extract_name(str(filepath))
-                french_lang_proc = french_processor.process_french_batch(str(filepath))
+                ocr = ocr_engine.OCREngine()
+                raw_name, raw_collect = ocr.extract_name(str(filepath))
+                french_lang_proc = french_processor.process_french_image(str(filepath), db=db)
                 final_card = db.find_best_match(raw_name, raw_collect)
                 print(type(final_card), final_card)
                 if final_card:
+                    french_name = french_lang_proc.get('name') if french_lang_proc else 'N/A'
+                    french_set = french_lang_proc.get('set') if french_lang_proc else 'N/A'
                     print(
                         f"Matched: {filepath.name} -> "
-                        f"{final_card['name']} ({final_card['set']}) {(french_lang_proc['name'])} {(french_lang_proc['set'])}"
+                        f"{final_card.get('name')} ({final_card.get('set')}) {french_name} {french_set}"
                     )
 
                     results.append({
                         "Original_File": filepath.name,
-                        "Card_Name": final_card["name"],
-                        "Set": final_card["set"],
-                        "Color": final_card["color"],
-                        "Price_USD": final_card["price"],
-                        "Rarity": final_card["rarity"]
+                        "Card_Name": final_card.get("name"),
+                        "Set": final_card.get("set"),
+                        "Color": final_card.get("color"),
+                        "Price_USD": final_card.get("price"),
+                        "Rarity": final_card.get("rarity")
                     })
 
                 else:

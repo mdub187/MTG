@@ -1,0 +1,45 @@
+------------------------------------------------------------------
+
+------------------------------------------------------------------
+
+
+------------------------------------------------------------------
+
+# File: mtg_sorter_reflex/__init__.py
+# (Leave empty)
+
+------------------------------------------------------------------
+
+# File: requirements.txt
+reflex==0.4.6
+opencv-python
+pytesseract
+pandas
+watchdog
+
+------------------------------------------------------------------
+
+# Directory Structure Instructions
+# Create this structure:
+#
+# mtg_sorter_reflex/
+# ├── mtg_sorter_reflex/
+# │   ├── __init__.py
+# │   ├── state.py
+# │   ├── mtg_sorter_reflex.py
+# │   └── pages/
+# │       └── upload.py
+# ├── mtg_sorter/
+# │   ├── ocr_engine.py
+# │   ├── database.py
+# │   └── ...
+# ├── oracle_cards.json
+# └── requirements.txt
+
+------------------------------------------------------------------
+
+# How to Use:
+1. Save each section above to its respective file.
+2. Run `pip install -r requirements.txt`.
+3. Start the app with `reflex run`.
+4. Open http://localhost:3000 in your browser.
