@@ -51,7 +51,7 @@ class CardDatabase:
                 # Try with lower confidence if first attempt fails
                 if min_confidence > 0.6:
                     return self.find_best_match(ocr_name, collector_ocr, min_confidence=0.6)
-                return None, 0
+                return None
             candidates = self.db[match[0]]
 
         # Use Collector Number/Set Code to narrow down if many printings exist
@@ -62,7 +62,7 @@ class CardDatabase:
                     return self._format_result(c)
 
         # Fallback to the first match found
-        return self._format_result(candidates[0])
+        return self._format_result(candidates[0]) if candidates else None
 
     def _format_result(self, card_obj):
         """Returns a clean dictionary for your CSV."""

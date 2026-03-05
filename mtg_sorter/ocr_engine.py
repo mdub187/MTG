@@ -2,52 +2,61 @@ import os
 import cv2
 import pytesseract
 import pandas as pd
+import json
 
 
-def extract_name(image_path):
-    """
-    OCR function to extract card name and collector info.
-    Supports English + French in one pass.
-    """
-    img = cv2.imread(image_path)
-    if img is None:
-        return None, None
+class OCREngine:
+    def __init__(self, config_path="mtg_sorter/config.json"):
+        with open(config_path, "r") as f:
+            self.config = json.load(f)
 
-    h, w, _ = img.shape
+    def extract_name(self, image_path):
+        """
+        OCR function to extract card name and collector info.
+        Supports English + French in one pass.
+        """
+        img = cv2.imread(image_path)
+        if img is None:
+            return None, None
 
-    # Name ROI (top-left)
-    name_roi = img[int(h * 0.04):int(h * 0.11), int(w * 0.05):int(w * 0.65)]
-    # print(name_roi)
-    # Collector ROI (bottom-left)
-    collect_roi = img[int(h * 0.91):int(h * 0.97), int(w * 0.05):int(w * 0.35)]
-    # print(collect_roi)
-    def clean_roi(roi):
+        h, w, _ = img.shape
+
+        # Name ROI (top-left)
+        name_roi = img[int(h * 0.04):int(h * 0.11), int(w * 0.05):int(w * 0.65)]
+
+        # Collector ROI (bottom-left)
+        collect_roi = img[int(h * 0.91):int(h * 0.97), int(w * 0.05):int(w * 0.35)]
+
+        name_text = pytesseract.image_to_string(
+            self.clean_roi(name_roi),
+            lang="eng+fra",
+            config="--psm 7"
+        ).strip()
+
+        collect_text = pytesseract.image_to_string(
+            self.clean_roi(collect_roi),
+            lang="eng+fra",
+            config="--psm 7"
+        ).strip()
+
+        return name_text, collect_text
+
+    def clean_roi(self, roi):
         gray = cv2.cvtColor(roi, cv2.COLOR_BGR2GRAY)
         _, thresh = cv2.threshold(gray, 150, 255, cv2.THRESH_BINARY_INV)
         return thresh
-        # print(clean_roi)
-    name_text = pytesseract.image_to_string(
-        clean_roi(name_roi),
-        lang="eng+fra",
-        config="--psm 7"
-    ).strip()
-
-    collect_text = pytesseract.image_to_string(
-        clean_roi(collect_roi),
-        lang="eng+fra",
-        config="--psm 7"
-    ).strip()
-    # print(type(collect_text))
-    return name_text, collect_text
 
 
 def process_batch(
     scan_dirs=None,
-    json_path="../oracle_cards.json"
+    db=None
 ):
-
     """
     Unified runner for mixed-language card sorting.
+    
+    Args:
+        scan_dirs: List of directories to scan for card images.
+        db: Pre-loaded CardDatabase instance to avoid reloading.
     """
     if scan_dirs is None:
         scan_dirs = [
@@ -57,12 +66,13 @@ def process_batch(
             "./images/batch_four/"
         ]
 
-    if not os.path.exists(json_path):
-        print(f"Error: {json_path} is required.")
-        return
-
-    from database import CardDatabase
-    db = CardDatabase(json_path)
+    if db is None:
+        from database import CardDatabase
+        json_path="../oracle_cards.json"
+        if not os.path.exists(json_path):
+            print(f"Error: {json_path} is required.")
+            return
+        db = CardDatabase(json_path)
     results = []
 
     print(f"Scanning cards in {scan_dirs}...")
@@ -75,7 +85,8 @@ def process_batch(
 
             path = os.path.join(scan_dir, filename)
 
-            raw_name, raw_collect = extract_name(path)
+            ocr_engine = OCREngine()
+            raw_name, raw_collect = ocr_engine.extract_name(path)
             if not raw_name:
                 print(f"Could not identify: {filename}")
                 continue
@@ -102,7 +113,3 @@ def process_batch(
         df = pd.DataFrame(results)
         df.to_csv("./inventory.csv", index=False)
         print(f"Success! {len(results)} cards documented.")
-
-
-# if __name__ == "__main__":
-#     process_batch()
