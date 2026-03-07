@@ -83,3 +83,22 @@ class OCRState(rx.State):
         self.uploaded_files = []
         self.results = []
         self.error = ""
+
+    def export_to_csv(self):
+        """Export results to CSV."""
+        if not self.results:
+            return rx.window_alert("No results to export!")
+
+        csv_data = "\n".join([
+            "File,Card Name,Set,Color,Price,Rarity",
+            *[
+                f"{r['file']},{r['name']},{r['set']},{r['color']},{r['price']},{r['rarity']}"
+                for r in self.results
+            ],
+        ])
+
+        return rx.download(
+            filename="inventory.csv",
+            data=csv_data,
+            mime_type="text/csv",
+        )

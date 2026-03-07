@@ -1,6 +1,15 @@
 <?xml version='1.0' encoding='utf-8'?>
 <urlset xmlns="https://www.sitemaps.org/schemas/sitemap/0.9">
   <url>
-    <loc>http://localhost:3000/</loc>
+    <loc>http://localhost:3001/collection</loc>
+  </url>
+  <url>
+    <loc>http://localhost:3001/upload</loc>
+  </url>
+  <url>
+    <loc>http://localhost:3001/login</loc>
+  </url>
+  <url>
+    <loc>http://localhost:3001/home</loc>
   </url>
 </urlset>

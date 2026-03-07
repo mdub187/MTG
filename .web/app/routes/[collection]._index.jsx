@@ -1,0 +1,20 @@
+import {Fragment,useEffect} from "react"
+import {Box as RadixThemesBox,Button as RadixThemesButton,Container as RadixThemesContainer,DropdownMenu as RadixThemesDropdownMenu,Flex as RadixThemesFlex,Heading as RadixThemesHeading,Link as RadixThemesLink,Text as RadixThemesText} from "@radix-ui/themes"
+import {Link as ReactRouterLink} from "react-router"
+import {ChevronDown as LucideChevronDown,Menu as LucideMenu} from "lucide-react"
+import {jsx} from "@emotion/react"
+
+
+
+
+
+export default function Component() {
+
+
+
+
+
+  return (
+    jsx(Fragment,{},jsx(RadixThemesContainer,{css:({ ["padding"] : "16px" }),size:"3"},jsx(RadixThemesBox,{css:({ ["background"] : "var(--accent-3)", ["padding"] : "1em", ["width"] : "100%" })},jsx(RadixThemesBox,{css:({ ["@media screen and (min-width: 0)"] : ({ ["display"] : "none" }), ["@media screen and (min-width: 30em)"] : ({ ["display"] : "none" }), ["@media screen and (min-width: 48em)"] : ({ ["display"] : "none" }), ["@media screen and (min-width: 62em)"] : ({ ["display"] : "block" }) })},jsx(RadixThemesFlex,{align:"start",className:"rx-Stack",css:({ ["alignItems"] : "center" }),direction:"row",justify:"between",gap:"3"},jsx(RadixThemesFlex,{align:"start",className:"rx-Stack",css:({ ["alignItems"] : "center" }),direction:"row",gap:"3"},jsx("img",{css:({ ["width"] : "2.25em", ["height"] : "auto", ["borderRadius"] : "25%" }),src:"/logo.jpg"},),jsx(RadixThemesHeading,{size:"7",weight:"bold"},"Reflex")),jsx(RadixThemesFlex,{align:"start",className:"rx-Stack",direction:"row",justify:"end",gap:"5"},jsx(RadixThemesLink,{asChild:true,css:({ ["&:hover"] : ({ ["color"] : "var(--accent-8)" }) })},jsx(ReactRouterLink,{to:"/#"},jsx(RadixThemesText,{as:"p",size:"4",weight:"medium"},"Home"))),jsx(RadixThemesDropdownMenu.Root,{},jsx(RadixThemesDropdownMenu.Trigger,{},jsx(RadixThemesButton,{css:({ ["weight"] : "medium" }),size:"3",variant:"ghost"},jsx(RadixThemesText,{as:"p",size:"4",weight:"medium"},"Services"),jsx(LucideChevronDown,{},))),jsx(RadixThemesDropdownMenu.Content,{},jsx(RadixThemesDropdownMenu.Item,{},"Service 1"),jsx(RadixThemesDropdownMenu.Item,{},"Service 2"),jsx(RadixThemesDropdownMenu.Item,{},"Service 3"))),jsx(RadixThemesLink,{asChild:true,css:({ ["&:hover"] : ({ ["color"] : "var(--accent-8)" }) })},jsx(ReactRouterLink,{to:"/#"},jsx(RadixThemesText,{as:"p",size:"4",weight:"medium"},"Pricing"))),jsx(RadixThemesLink,{asChild:true,css:({ ["&:hover"] : ({ ["color"] : "var(--accent-8)" }) })},jsx(ReactRouterLink,{to:"/#"},jsx(RadixThemesText,{as:"p",size:"4",weight:"medium"},"Contact")))))),jsx(RadixThemesBox,{css:({ ["@media screen and (min-width: 0)"] : ({ ["display"] : "block" }), ["@media screen and (min-width: 30em)"] : ({ ["display"] : "block" }), ["@media screen and (min-width: 48em)"] : ({ ["display"] : "block" }), ["@media screen and (min-width: 62em)"] : ({ ["display"] : "none" }) })},jsx(RadixThemesFlex,{align:"start",className:"rx-Stack",css:({ ["alignItems"] : "center" }),direction:"row",justify:"between",gap:"3"},jsx(RadixThemesFlex,{align:"start",className:"rx-Stack",css:({ ["alignItems"] : "center" }),direction:"row",gap:"3"},jsx("img",{css:({ ["width"] : "2em", ["height"] : "auto", ["borderRadius"] : "25%" }),src:"/logo.jpg"},),jsx(RadixThemesHeading,{size:"6",weight:"bold"},"Reflex")),jsx(RadixThemesDropdownMenu.Root,{css:({ ["justify"] : "end" })},jsx(RadixThemesDropdownMenu.Trigger,{},jsx(LucideMenu,{size:30},)),jsx(RadixThemesDropdownMenu.Content,{},jsx(RadixThemesDropdownMenu.Item,{},"Home"),jsx(RadixThemesDropdownMenu.Sub,{},jsx(RadixThemesDropdownMenu.SubTrigger,{},"Services"),jsx(RadixThemesDropdownMenu.SubContent,{},jsx(RadixThemesDropdownMenu.Item,{},"Service 1"),jsx(RadixThemesDropdownMenu.Item,{},"Service 2"),jsx(RadixThemesDropdownMenu.Item,{},"Service 3"))),jsx(RadixThemesDropdownMenu.Item,{},"About"),jsx(RadixThemesDropdownMenu.Item,{},"Pricing"),jsx(RadixThemesDropdownMenu.Item,{},"Contact")))))),jsx(RadixThemesHeading,{size:"2"},"Collection")),jsx("title",{},"MtgSorterReflex | Collection"),jsx("meta",{content:"favicon.ico",property:"og:image"},))
+  )
+}

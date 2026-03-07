@@ -2,16 +2,26 @@
 
 import reflex as rx
 from mtg_sorter_reflex.state import OCRState
+from mtg_sorter_reflex.components import navbar
 
-def upload_page():
+
+route = "/upload"
+
+
+def upload_page() -> rx.Component:
     return rx.container(
+        rx.box(
+            navbar.navbar(),
+        ),
         rx.vstack(
-            rx.heading("MTG Card Sorter", size="lg", margin_bottom="1em"),
+            rx.heading("MTG Card Sorter", size="5", margin_bottom=3),
+            rx.box(
+            ),
             rx.box(
                 rx.upload(
                     rx.vstack(
                         rx.text("Drag and drop images here or click to browse"),
-                        rx.text("Supports: JPG, PNG", size="sm", color="gray"),
+                        rx.text("Supports: JPG, PNG", size="6", color="gray"),
                     ),
                     border="1px dashed gray",
                     padding="2em",
@@ -32,7 +42,7 @@ def upload_page():
                     "Process Images",
                     on_click=OCRState.process_images,
                     is_loading=OCRState.is_processing,
-                    is_disabled=not OCRState.uploaded_files,
+                    is_disabled=rx.cond(OCRState.uploaded_files, False, True),
                 ),
                 rx.button(
                     "Clear",
@@ -40,70 +50,48 @@ def upload_page():
                     variant="outline",
                 ),
                 width="100%",
-                justify="space-between",
-                margin_top="1em",
-            ),
-            rx.cond(
-                OCRState.error,
-                rx.alert(
-                    rx.alert_icon(),
-                    rx.alert_title(OCRState.error),
-                    status="error",
-                    margin_top="1em",
-                ),
+                margin_top=3,
             ),
             rx.divider(margin_y="1em"),
-            rx.heading("Results", size="md", margin_bottom="0.5em"),
+            rx.heading("Results", size="5", margin_bottom=3),
             rx.cond(
                 OCRState.is_processing,
                 rx.center(
-                    rx.circular_progress(is_indeterminate=True),
+                    rx.spinner(),
                     padding="2em",
                 ),
                 rx.cond(
                     OCRState.results,
-                    rx.box(
-                        rx.table(
-                            rx.thead(
-                                rx.tr(
-                                    rx.th("File"),
-                                    rx.th("Card Name"),
-                                    rx.th("Set"),
-                                    rx.th("Color"),
-                                    rx.th("Price"),
-                                    rx.th("Rarity"),
-                                )
+                    rx.vstack(
+                        rx.table.root(
+                            rx.table.header(
+                                rx.table.row(
+                                    rx.table.column_header_cell("File"),
+                                    rx.table.column_header_cell("Card Name"),
+                                    rx.table.column_header_cell("Set"),
+                                    rx.table.column_header_cell("Color"),
+                                    rx.table.column_header_cell("Price"),
+                                    rx.table.column_header_cell("Rarity"),
+                                ),
                             ),
-                            rx.tbody(
+                            rx.table.body(
                                 rx.foreach(
                                     OCRState.results,
-                                    lambda result: rx.tr(
-                                        rx.td(result["file"]),
-                                        rx.td(result["name"]),
-                                        rx.td(result["set"]),
-                                        rx.td(result["color"]),
-                                        rx.td(f"${result['price']}"),
-                                        rx.td(result["rarity"]),
+                                    lambda result: rx.table.row(
+                                        rx.table.cell(result["file"]),
+                                        rx.table.cell(result["name"]),
+                                        rx.table.cell(result["set"]),
+                                        rx.table.cell(result["color"]),
+                                        rx.table.cell(f"${result['price']}"),
+                                        rx.table.cell(result["rarity"]),
                                     ),
-                                )
+                                ),
                             ),
-                            width="100%",
-                            size="sm",
                         ),
                         rx.button(
                             "Export to CSV",
-                            on_click=lambda: rx.download(
-                                filename="inventory.csv",
-                                data="\n".join([
-                                    "File,Card Name,Set,Color,Price,Rarity",
-                                    *[
-                                        f"{r['file']},{r['name']},{r['set']},{r['color']},{r['price']},{r['rarity']}"
-                                        for r in OCRState.results
-                                    ],
-                                ]),
-                                mime_type="text/csv",
-                            ),
-                            margin_top="1em",
+                            on_click=OCRState.export_to_csv,
+                            margin_top=3,
                             width="100%",
                         ),
                         width="100%",
@@ -116,8 +104,8 @@ def upload_page():
                     ),
                 ),
             ),
-            spacing="1em",
+            spacing="3",
             width="100%",
-        ),
-        padding="2em",
+            padding="2em",
+        )
     )

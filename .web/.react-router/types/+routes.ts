@@ -14,6 +14,18 @@ type Pages = {
   "/": {
     params: {};
   };
+  "/collection": {
+    params: {};
+  };
+  "/upload": {
+    params: {};
+  };
+  "/login": {
+    params: {};
+  };
+  "/home": {
+    params: {};
+  };
   "/*": {
     params: {
       "*": string;
@@ -24,11 +36,23 @@ type Pages = {
 type RouteFiles = {
   "root.jsx": {
     id: "root";
-    page: "/" | "/*";
+    page: "/" | "/collection" | "/upload" | "/login" | "/home" | "/*";
   };
-  "routes/_index.jsx": {
-    id: "routes/_index";
-    page: "/";
+  "routes/[collection]._index.jsx": {
+    id: "routes/[collection]._index";
+    page: "/collection";
+  };
+  "routes/[upload]._index.jsx": {
+    id: "routes/[upload]._index";
+    page: "/upload";
+  };
+  "routes/[login]._index.jsx": {
+    id: "routes/[login]._index";
+    page: "/login";
+  };
+  "routes/[home]._index.jsx": {
+    id: "routes/[home]._index";
+    page: "/home";
   };
   "routes/[404]._index.jsx": {
     id: "routes/[404]._index";
@@ -38,6 +62,9 @@ type RouteFiles = {
 
 type RouteModules = {
   "root": typeof import("./app/root.jsx");
-  "routes/_index": typeof import("./app/routes/_index.jsx");
+  "routes/[collection]._index": typeof import("./app/routes/[collection]._index.jsx");
+  "routes/[upload]._index": typeof import("./app/routes/[upload]._index.jsx");
+  "routes/[login]._index": typeof import("./app/routes/[login]._index.jsx");
+  "routes/[home]._index": typeof import("./app/routes/[home]._index.jsx");
   "routes/[404]._index": typeof import("./app/routes/[404]._index.jsx");
 };
