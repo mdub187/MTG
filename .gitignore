@@ -1,6 +1,6 @@
-.venv/*
+.venv/
 
-**/images/**
+images/
 
 mtg_sorter/__pycache__/
 
@@ -10,7 +10,10 @@ mtg_sorter/__pycache__/
 
 requirements.txt
 
-card_scans/*
+card_scans/
 
+__pycache__/
 
-*.DS_Store
+.DS_Store
+
+*.pyc
