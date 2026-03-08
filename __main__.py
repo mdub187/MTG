@@ -10,8 +10,9 @@ batch_one_dir = os.path.abspath("./mtg_sorter/images/batch_one")
 batch_two_dir = os.path.abspath("./mtg_sorter/images/batch_two")
 batch_three_dir = os.path.abspath("./mtg_sorter/images/batch_three")
 batch_four_dir = os.path.abspath("./mtg_sorter/images/batch_four")
+batch_five_dir = os.path.abspath("./mtg_sorter/images/batch_five")
 
-scan_directory = [batch_one_dir, batch_two_dir, batch_three_dir, batch_four_dir]
+scan_directory = [batch_one_dir, batch_two_dir, batch_three_dir, batch_four_dir, batch_five_dir]
 def main():
     # 1. SETUP: Define paths and Load Database ONCE
     json_path = "oracle_cards.json"

@@ -3,6 +3,7 @@ import json
 import pandas as pd
 from difflib import get_close_matches
 from pathlib import Path
+from .french_processor import process_french_batch
 path = Path('./oracle_cards.json')
 # 1. Load the local database
 with open(path, 'r', encoding='utf-8') as f:
@@ -27,24 +28,22 @@ def lookup_card_locally(ocr_name):
             "Rarity": card.get('rarity', 'unknown')
         }
     return None
-image_folder=['/MTG/mtg_sorter/images/batch_one/', '/MTG/mtg_sorter/images/batch_two/', "/MTG/mtg_sorter/images/batch_three/", "/MTG/mtg_sorter/images/batch_four/"]
+image_folder=['/MTG/mtg_sorter/images/batch_one/', '/MTG/mtg_sorter/images/batch_two/', "/MTG/mtg_sorter/images/batch_three/", "/MTG/mtg_sorter/images/batch_four/", "/MTG/mtg_sorter/images/batch_five/"]
 def process_inventory(image_folder):
     results = []
-    for filename in os.listdir(image_folder):
-        if filename.lower().endswith(('.JPG', '.png')):
-            ocr_name = os.path.splitext(filename)[0]
-            data = lookup_card_locally(ocr_name)
-            if data:
-                results.append(data)
-                print(f"Matched: {ocr_name} -> {data['Name']}")
+    for folder in image_folder:
+        for filename in os.listdir(folder):
+            if filename.lower().endswith(('.jpg', '.png')):
+                ocr_name = os.path.splitext(filename)[0]
+                data = lookup_card_locally(ocr_name)
+                if data:
+                    results.append(data)
+                    print(f"Matched: {ocr_name} -> {data['Name']}")
 
-    # Save to CSV
-    process_inventory = os.path.join('./card_scans/')
-    df = pd.DataFrame(results).to_csv(process_inventory, index=False)
-    df_combined = pd.concat([df, df], ignore_index=True)
+    # Save non-French cards to CSV
+    df = pd.DataFrame(results)
+    df.to_csv('./card_inventory.csv', index=False)
+    print(f"Success! {len(results)} non-French cards documented in card_inventory.csv")
 
-    with open (df_combined, "w") as a:
-    	for path, subdirs, files in os.walk(str(process_inventory)):
-       	 for filename in files:
-         	f = os.path.join(path, filename)
-         	a.write(str(f) + os.linesep)
+    # Process French cards separately
+    process_french_batch(scan_dir=image_folder, json_path="./oracle_cards.json")
