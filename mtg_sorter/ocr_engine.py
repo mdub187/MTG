@@ -40,12 +40,16 @@ class OCREngine:
         ).strip()
 
         return name_text, collect_text
-
+        
     def clean_roi(self, roi):
         gray = cv2.cvtColor(roi, cv2.COLOR_BGR2GRAY)
         _, thresh = cv2.threshold(gray, 150, 255, cv2.THRESH_BINARY_INV)
         return thresh
-
+        
+        # Display the image with bounding boxes and text
+        #  cv2.imshow('OCR Output', name_roi) # replace name_roi with img to see output of image
+        #  cv2.waitKey(0) # press any key to continue
+        #  cv2.destroyAllWindows()
 
 def process_batch(
     scan_dirs=None,
@@ -60,12 +64,11 @@ def process_batch(
     """
     if scan_dirs is None:
         scan_dirs = [
-            "./images/batch_one/",
-            "./images/batch_two/",
-            "./images/batch_three/",
-            "./images/batch_four/"
+            # insert the relative path to your imgaes directories
+            # so that the list is defined 
+            # for future refrencing
         ]
-
+    ### this will ensure that your refrence database exists, and if not return an error.
     if db is None:
         from database import CardDatabase
         json_path="../oracle_cards.json"
@@ -79,7 +82,8 @@ def process_batch(
 
     for scan_dir in scan_dirs:
         for filename in os.listdir(scan_dir):
-
+            # important qualification logic so that no unecessary files are scanned.
+            # neet to update to include already identified cards
             if filename.startswith('.') or not filename.lower().endswith(('.jpg', '.png')):
                 continue
 
@@ -93,6 +97,8 @@ def process_batch(
 
             match = db.find_best_match(raw_name, raw_collect)
 
+
+            # matching and identification logic
             if match:
                 print(f"Match: {filename} -> {match['name']} ({match['set']})")
 
@@ -109,6 +115,7 @@ def process_batch(
             else:
                 print(f"No match found: {filename}")
 
+    # if any results come back as matched this will be where you defined the save file and location.
     if results:
         df = pd.DataFrame(results)
         df.to_csv("./inventory.csv", index=False)
